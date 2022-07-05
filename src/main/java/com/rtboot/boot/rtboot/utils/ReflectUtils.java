@@ -1,13 +1,12 @@
 package com.rtboot.boot.rtboot.utils;
 
 import com.rtboot.boot.rtboot.annotation.Value;
+import com.rtboot.boot.rtboot.bean.FieldWrapper;
+import com.rtboot.boot.rtboot.i.ObjectFindListener;
 import com.rtboot.boot.rtboot.reflect.extend.CombinationAnnotationElement;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -82,6 +81,16 @@ public class ReflectUtils {
             return null;
         }
         return method.invoke(clazz, objects);
+    }
+
+
+    public static void injectField(Object clazz, Field field, Object value) throws IllegalAccessException {
+        boolean isHidden = field.isAccessible();
+        field.setAccessible(true);
+        field.set(clazz,value);
+        if(!isHidden){
+            field.setAccessible(false);
+        }
     }
 }
 

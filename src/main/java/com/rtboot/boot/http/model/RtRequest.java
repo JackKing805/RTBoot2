@@ -5,13 +5,13 @@ import com.rtboot.boot.http.bean.RequestUrl;
 import com.rtboot.boot.http.enums.RequestProtocol;
 import com.rtboot.boot.http.enums.RequestVersion;
 
-public class Request {
+public class RtRequest {
     private final RequestProtocol requestProtocol;
     private final RequestVersion requestVersion;
     private final RequestUrl requestUrl;
     private final RequestHeader requestHeader;
 
-    public Request(RequestProtocol requestProtocol, RequestVersion requestVersion, RequestUrl requestUrl, RequestHeader requestHeader) {
+    public RtRequest(RequestProtocol requestProtocol, RequestVersion requestVersion, RequestUrl requestUrl, RequestHeader requestHeader) {
         this.requestProtocol = requestProtocol;
         this.requestVersion = requestVersion;
         this.requestUrl = requestUrl;

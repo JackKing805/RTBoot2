@@ -1,37 +1,33 @@
 package com.rtboot.boot.http.handler.i;
 
-import com.rtboot.boot.http.core.RtClient;
-import com.rtboot.boot.http.handler.i.model.RequestHandlerResponse;
-import com.rtboot.boot.http.model.Request;
-import com.rtboot.boot.http.model.Response;
+import com.rtboot.boot.http.handler.model.RequestResult;
+import com.rtboot.boot.http.handler.model.ResponseMessage;
+import com.rtboot.boot.http.model.RtRequest;
+import com.rtboot.boot.http.model.RtResponse;
 import com.rtboot.boot.rtboot.core.RtContext;
 
 public abstract class RequestHandler {
     private RequestHandler next;
 
-    /**
-     * true 继续执行，false 中断执行
-     * @param request
-     * @return
-     */
-    protected abstract RequestHandlerResponse handlerRequest(RtContext rtContext, Request request);
 
-    public Response handleNext(RtContext rtContext, Request request){
-        RequestHandlerResponse response = handlerRequest(rtContext,request);
-        if (RequestHandlerResponse.isContinue(response)){
-            if(next!=null){
-                return next.handleNext(rtContext,request);
+    protected abstract RequestResult handlerRequest(RtContext rtContext, RtRequest rtRequest, RtResponse rtResponse) throws Exception;
+
+    public RequestResult handleNext(RtContext rtContext, RtRequest rtRequest,RtResponse rtResponse){
+        RequestResult requestResult;
+        try {
+            requestResult = handlerRequest(rtContext, rtRequest,rtResponse);
+        } catch (Exception e) {
+            return RequestResult.failure(new ResponseMessage(505,"server content error",null));
+        }
+        if (RequestResult.isNext(requestResult)){
+            if (next!=null){
+                return next.handleNext(rtContext, rtRequest,rtResponse);
             }else {
-                if (response.getResponse()==null){
-                    return Response.unknownRequest();
-                }
+                return RequestResult.failure(new ResponseMessage(400,"bad request",null));
             }
+        }else {
+            return requestResult;
         }
-        if (response.getResponse()!=null){
-            return response.getResponse();
-        }
-
-        return Response.badRequest();
     }
 
     public void setNext(RequestHandler requestHandler){

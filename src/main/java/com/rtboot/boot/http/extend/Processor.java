@@ -5,8 +5,10 @@ import com.rtboot.boot.http.bean.RequestHeader;
 import com.rtboot.boot.http.bean.RequestUrl;
 import com.rtboot.boot.http.enums.RequestProtocol;
 import com.rtboot.boot.http.enums.RequestVersion;
-import com.rtboot.boot.http.model.Request;
-import com.rtboot.boot.http.model.Response;
+import com.rtboot.boot.http.handler.model.ResponseMessage;
+import com.rtboot.boot.http.handler.model.ResponseWrapper;
+import com.rtboot.boot.http.model.RtRequest;
+import com.rtboot.boot.http.model.RtResponse;
 import com.rtboot.boot.http.utils.StringParser;
 import com.rtboot.boot.rtboot.utils.Logger;
 
@@ -14,12 +16,11 @@ import java.io.*;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
 
 public class Processor {
     private static final Gson gson = new Gson();
 
-    public static Request processRequest(Socket socket){
+    public static RtRequest processRequest(Socket socket){
         try {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             boolean isProtocolLine = true;
@@ -31,7 +32,7 @@ public class Processor {
             while (true){
                 String line = bufferedReader.readLine();
                 if (isProtocolLine){
-                    if (line.isEmpty()){
+                    if (line==null){
                         return null;
                     }
                     String[] split = line.split(" ");
@@ -54,13 +55,13 @@ public class Processor {
                     if (strings!=null){
                         headers.put(strings[0],strings[1]);
                     }
-                }else  if (line.isEmpty()){
+                }else if (line.isEmpty()){
                     break;
                 }
             }
             requestHeader = new RequestHeader(headers);
             if(requestProtocol != null && requestVersion != null && requestUrl != null){
-                return new Request(requestProtocol,requestVersion,requestUrl,requestHeader);
+                return new RtRequest(requestProtocol,requestVersion,requestUrl,requestHeader);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -80,34 +81,26 @@ public class Processor {
     }
 
 
-    //todo
-    public static void processResponse(Socket socket,Request request, Response response){
-        Logger.i("request:"+request.getRequestUrl().getPath()+",start response:"+response);
-
-        Map<String,Object> header = new HashMap<>();
-        header.put("Content-Length:",response.getContentLength());
-        header.put("Content-Type:","text/plain");
+    public static void processResponse(RtRequest rtRequest, RtResponse rtResponse, ResponseWrapper responseWrapper){
+        Logger.i("request:"+ rtRequest.getRequestUrl().getPath()+",start response:"+ rtResponse);
 
         try{
-            OutputStream outputStream = socket.getOutputStream();
+            OutputStream outputStream = rtResponse.getOutPutStream();
             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
-//            PrintWriter printWriter = new PrintWriter(outputStream);
-            String responseLine = request.getRequestVersion().getVersion()+" "+ response.getCode() + " "+response.getMsg() + "\r\n";
+            String responseLine = rtRequest.getRequestVersion().getVersion()+" "+ responseWrapper.getResponseMessage().getCode() + " "+ responseWrapper.getResponseMessage().getMsg() + "\r\n";
             bufferedOutputStream.write(responseLine.getBytes());
-            for (Map.Entry<String, Object> map : header.entrySet()) {
+            for (Map.Entry<String, Object> map : responseWrapper.getHeader().entrySet()) {
                 String head = map.getKey() + map.getValue() + "\r\n";
                 bufferedOutputStream.write(head.getBytes());
             }
             String endLine = "\r\n";
             bufferedOutputStream.write(endLine.getBytes());
-            if (response.getData()!=null){
-                String s = gson.toJson(response.getData());
-                bufferedOutputStream.write(s.getBytes());
+            if (responseWrapper.getResponseMessage().getContent()!=null && responseWrapper.getResponseWriteListener()!=null){
+                responseWrapper.getResponseWriteListener().write(outputStream);
             }
             bufferedOutputStream.flush();
             bufferedOutputStream.close();
             outputStream.close();
-            socket.close();
         }catch (Exception e){
             e.printStackTrace();
         }

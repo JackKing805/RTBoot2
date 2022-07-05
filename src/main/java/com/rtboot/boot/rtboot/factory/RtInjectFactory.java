@@ -65,7 +65,7 @@ public class RtInjectFactory {
         }
 
         try {
-            injectField(fieldWrapper.getObject(),fieldWrapper.getField(),bean);
+            ReflectUtils.injectField(fieldWrapper.getObject(),fieldWrapper.getField(),bean);
             return true;
         } catch (IllegalAccessException e) {
             return false;
@@ -101,21 +101,10 @@ public class RtInjectFactory {
             String result = RtPropertiesFactory.getString(value);
             if (!value.equals("") && result!=null) {
                 Logger.i("inject value in class:"+fieldWrapper.getObject().getClass().getName()+",fieldType:"+fieldWrapper.getField().getType().getName()+",value:"+ value+",isHidden:"+fieldWrapper.getField().isAccessible());
-                injectField(fieldWrapper.getObject(),fieldWrapper.getField(),result);
+                ReflectUtils.injectField(fieldWrapper.getObject(),fieldWrapper.getField(),result);
             }
         }
     }
-
-
-    public static void injectField(Object clazz,Field field,Object value) throws IllegalAccessException {
-        boolean isHidden = field.isAccessible();
-        field.setAccessible(true);
-        field.set(clazz,value);
-        if(!isHidden){
-            field.setAccessible(false);
-        }
-    }
-
 
     public static void injectObject(Object object, ObjectFindListener findListener) throws IllegalAccessException {
         if (object==null){

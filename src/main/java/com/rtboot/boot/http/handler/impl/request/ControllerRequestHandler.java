@@ -1,9 +1,10 @@
 package com.rtboot.boot.http.handler.impl.request;
 
 import com.rtboot.boot.http.handler.i.RequestHandler;
-import com.rtboot.boot.http.handler.i.model.RequestHandlerResponse;
-import com.rtboot.boot.http.model.Request;
-import com.rtboot.boot.http.model.Response;
+import com.rtboot.boot.http.handler.model.RequestResult;
+import com.rtboot.boot.http.handler.model.ResponseMessage;
+import com.rtboot.boot.http.model.RtRequest;
+import com.rtboot.boot.http.model.RtResponse;
 import com.rtboot.boot.rtboot.annotation.Controller;
 import com.rtboot.boot.rtboot.core.RtContext;
 import com.rtboot.boot.rtboot.factory.RtInjectFactory;
@@ -17,47 +18,40 @@ import java.util.List;
 
 public class ControllerRequestHandler extends RequestHandler {
     @Override
-    protected RequestHandlerResponse handlerRequest(RtContext rtContext, Request request) {
-        Logger.i("controller request:"+request);
+    protected RequestResult handlerRequest(RtContext rtContext, RtRequest rtRequest, RtResponse rtResponse) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+        Logger.i("controller request:"+ rtRequest);
         Object controller;
-        try {
-            controller = matchController(rtContext, request.getRequestUrl().getPath());
-        } catch (InstantiationException | IllegalAccessException e) {
-            return RequestHandlerResponse.failure(Response.errorRequest(400,"未匹配的请求"));
-        }
+        controller = matchController(rtContext, rtRequest.getRequestUrl().getPath());
         if (controller==null){
-            return RequestHandlerResponse.failure(Response.errorRequest(400,"未匹配的请求"));
+            throw new NullPointerException("no match controller class");
         }
 
-        try {
-            RtInjectFactory.injectObject(controller, clazz -> {
-                if (clazz == Request.class){
-                    return request;
-                }
-                return null;
-            });
-        } catch (IllegalAccessException e) {
-            return RequestHandlerResponse.failure(Response.errorRequest(500,"server error"));
-        }
+        RtInjectFactory.injectObject(controller, clazz -> {
+            if (clazz == RtRequest.class){
+                return rtRequest;
+            }else if(clazz == RtResponse.class){
+                return rtResponse;
+            }
+            return null;
+        });
 
 
         Class<?> aClass = controller.getClass();
-        Method method = matchControllerMethod(getControllerMethod(aClass),request.getRequestUrl().getPath());
+        Method method = matchControllerMethod(getControllerMethod(aClass), rtRequest.getRequestUrl().getPath());
         if (method==null){
-            return RequestHandlerResponse.failure(Response.errorRequest(400,"未匹配的请求"));
+            throw new NullPointerException("no match controller method");
         }
-        try {
-            Object methodResponse = ReflectUtils.invokeMethod(controller, method, rtContext.findMethodParameters(method, parameter -> {
-                Class<?> type = parameter.getType();
-                if (type == Request.class) {
-                    return request;
-                }
-                return null;
-            }));
-            return RequestHandlerResponse.success(Response.successRequest(200,"请求成功",methodResponse));
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            return RequestHandlerResponse.failure(Response.errorRequest(500,"server error"));
-        }
+        Object methodResponse = ReflectUtils.invokeMethod(controller, method, rtContext.findMethodParameters(method, parameter -> {
+            Class<?> type = parameter.getType();
+            if (type == RtRequest.class) {
+                return rtRequest;
+            }else if(type == RtResponse.class){
+                return rtResponse;
+            }
+            return null;
+        }));
+
+        return RequestResult.success(new ResponseMessage(200,"ok",methodResponse));
     }
 
     private Object matchController(RtContext rtContext,String path) throws InstantiationException, IllegalAccessException {
