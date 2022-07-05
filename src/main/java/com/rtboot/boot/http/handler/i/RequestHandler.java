@@ -1,7 +1,9 @@
 package com.rtboot.boot.http.handler.i;
 
 import com.rtboot.boot.http.core.RtClient;
+import com.rtboot.boot.http.handler.i.model.RequestHandlerResponse;
 import com.rtboot.boot.http.model.Request;
+import com.rtboot.boot.http.model.Response;
 import com.rtboot.boot.rtboot.core.RtContext;
 
 public abstract class RequestHandler {
@@ -12,13 +14,24 @@ public abstract class RequestHandler {
      * @param request
      * @return
      */
-    protected abstract boolean handlerRequest(RtContext rtContext, Request request);
+    protected abstract RequestHandlerResponse handlerRequest(RtContext rtContext, Request request);
 
-    public void handleNext(RtContext rtContext,Request request){
-        boolean b = handlerRequest(rtContext,request);
-        if(b && next!=null){
-            next.handlerRequest(rtContext,request);
+    public Response handleNext(RtContext rtContext, Request request){
+        RequestHandlerResponse response = handlerRequest(rtContext,request);
+        if (RequestHandlerResponse.isContinue(response)){
+            if(next!=null){
+                return next.handleNext(rtContext,request);
+            }else {
+                if (response.getResponse()==null){
+                    return Response.unknownRequest();
+                }
+            }
         }
+        if (response.getResponse()!=null){
+            return response.getResponse();
+        }
+
+        return Response.badRequest();
     }
 
     public void setNext(RequestHandler requestHandler){

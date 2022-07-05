@@ -1,7 +1,9 @@
 package com.rtboot.boot.http.handler.impl.request;
 
 import com.rtboot.boot.http.handler.i.RequestHandler;
+import com.rtboot.boot.http.handler.i.model.RequestHandlerResponse;
 import com.rtboot.boot.http.model.Request;
+import com.rtboot.boot.http.model.Response;
 import com.rtboot.boot.rtboot.annotation.Controller;
 import com.rtboot.boot.rtboot.core.RtContext;
 import com.rtboot.boot.rtboot.factory.RtInjectFactory;
@@ -15,16 +17,16 @@ import java.util.List;
 
 public class ControllerRequestHandler extends RequestHandler {
     @Override
-    protected boolean handlerRequest(RtContext rtContext,Request request) {
+    protected RequestHandlerResponse handlerRequest(RtContext rtContext, Request request) {
         Logger.i("controller request:"+request);
-        Object controller = null;
+        Object controller;
         try {
             controller = matchController(rtContext, request.getRequestUrl().getPath());
         } catch (InstantiationException | IllegalAccessException e) {
-            return false;
+            return RequestHandlerResponse.failure(Response.errorRequest(400,"未匹配的请求"));
         }
         if (controller==null){
-            return false;
+            return RequestHandlerResponse.failure(Response.errorRequest(400,"未匹配的请求"));
         }
 
         try {
@@ -35,27 +37,27 @@ public class ControllerRequestHandler extends RequestHandler {
                 return null;
             });
         } catch (IllegalAccessException e) {
-            return false;
+            return RequestHandlerResponse.failure(Response.errorRequest(500,"server error"));
         }
 
 
         Class<?> aClass = controller.getClass();
         Method method = matchControllerMethod(getControllerMethod(aClass),request.getRequestUrl().getPath());
         if (method==null){
-            return false;
+            return RequestHandlerResponse.failure(Response.errorRequest(400,"未匹配的请求"));
         }
         try {
-            ReflectUtils.invokeMethod(controller,method, rtContext.findMethodParameters(method, parameter -> {
+            Object methodResponse = ReflectUtils.invokeMethod(controller, method, rtContext.findMethodParameters(method, parameter -> {
                 Class<?> type = parameter.getType();
-                if (type == Request.class){
+                if (type == Request.class) {
                     return request;
                 }
                 return null;
             }));
+            return RequestHandlerResponse.success(Response.successRequest(200,"请求成功",methodResponse));
         } catch (InvocationTargetException | IllegalAccessException e) {
-            return false;
+            return RequestHandlerResponse.failure(Response.errorRequest(500,"server error"));
         }
-        return false;
     }
 
     private Object matchController(RtContext rtContext,String path) throws InstantiationException, IllegalAccessException {

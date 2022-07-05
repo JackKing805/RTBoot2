@@ -44,24 +44,24 @@ public class ReflectUtils {
                 clazz.isArray() ||
                         clazz.isInterface() ||
                         clazz.isEnum() ||
-                        clazz.isInstance(Number.class) ||
-                        clazz.isInstance(String.class) ||
-                        clazz.isInstance(Integer.class) ||
-                        clazz.isInstance(int.class) ||
-                        clazz.isInstance(Boolean.class) ||
-                        clazz.isInstance(boolean.class) ||
-                        clazz.isInstance(Double.class) ||
-                        clazz.isInstance(double.class) ||
-                        clazz.isInstance(Float.class) ||
-                        clazz.isInstance(float.class) ||
-                        clazz.isInstance(Long.class) ||
-                        clazz.isInstance(long.class) ||
-                        clazz.isInstance(byte.class) ||
-                        clazz.isInstance(short.class)
+                        clazz==(Number.class) ||
+                        clazz==(String.class) ||
+                        clazz==(Integer.class) ||
+                        clazz==(int.class) ||
+                        clazz==(Boolean.class) ||
+                        clazz==(boolean.class) ||
+                        clazz==(Double.class) ||
+                        clazz==(double.class) ||
+                        clazz==(Float.class) ||
+                        clazz==(float.class) ||
+                        clazz==(Long.class) ||
+                        clazz==(long.class) ||
+                        clazz==(byte.class) ||
+                        clazz==(short.class)
         ) {
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     public static String getValueKey(Value value){

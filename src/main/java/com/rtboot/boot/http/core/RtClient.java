@@ -5,6 +5,7 @@ import com.rtboot.boot.http.handler.i.RequestHandler;
 import com.rtboot.boot.http.handler.impl.request.ControllerRequestHandler;
 import com.rtboot.boot.http.handler.impl.request.RootRequestHandler;
 import com.rtboot.boot.http.model.Request;
+import com.rtboot.boot.http.model.Response;
 import com.rtboot.boot.rtboot.core.RtContext;
 import com.rtboot.boot.rtboot.utils.Logger;
 
@@ -29,10 +30,12 @@ public class RtClient implements Runnable {
         }
         Logger.i("client request:"+request);
 
-        new RequestHandler.Builder()
+        Response response = new RequestHandler.Builder()
                 .addHandler(new RootRequestHandler())
                 .addHandler(new ControllerRequestHandler())
                 .build()
-                .handleNext(rtContext,request);
+                .handleNext(rtContext, request);
+
+        Processor.processResponse(socket,request,response);
     }
 }
