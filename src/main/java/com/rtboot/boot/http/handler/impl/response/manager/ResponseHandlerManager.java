@@ -1,10 +1,7 @@
 package com.rtboot.boot.http.handler.impl.response.manager;
 
 import com.rtboot.boot.http.handler.i.ResponseHandler;
-import com.rtboot.boot.http.handler.impl.response.DefaultResponseHandler;
-import com.rtboot.boot.http.handler.impl.response.StringResponseHandler;
-import com.rtboot.boot.http.handler.impl.response.URLResponseHandler;
-import com.rtboot.boot.http.handler.impl.response.ViewResponseHandler;
+import com.rtboot.boot.http.handler.impl.response.*;
 import com.rtboot.boot.http.handler.model.ResponseMessage;
 import com.rtboot.boot.rtboot.core.RtContext;
 import com.rtboot.boot.rtboot.utils.Logger;
@@ -29,6 +26,6 @@ public class ResponseHandlerManager {
         }else if(responseType == URL.class){
             return new URLResponseHandler();
         }
-        return new DefaultResponseHandler();
+        return new ObjectResponseHandler();
     }
 }

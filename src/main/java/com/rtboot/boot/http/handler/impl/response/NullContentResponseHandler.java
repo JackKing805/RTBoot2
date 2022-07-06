@@ -12,23 +12,13 @@ import com.rtboot.boot.rtboot.utils.Logger;
 
 import java.io.OutputStream;
 
-public class DefaultResponseHandler extends ResponseHandler {
-    @Override
-    public String getContentType() {
-        return ContentType.TEXT_PLAIN.getContentType();
-    }
-
+public class NullContentResponseHandler extends ResponseHandler {
     @Override
     public ResponseWrapper handlerResponse(RtContext rtContext, RtRequest rtRequest, RtResponse rtResponse, ResponseMessage responseMessage) {
-        Logger.i("handlerResponse DefaultResponseHandler");
-        ResponseWrapper responseWrapper = new ResponseWrapper(rtRequest, responseMessage, new ResponseWriteListener() {
-            @Override
-            public void write(OutputStream outputStream) {
-
-            }
-        });
-        responseWrapper.setContentType(getContentType());
-        responseWrapper.setContentLength(responseMessage.getContentLength());
+        Logger.i("handlerResponse NullContentResponseHandler");
+        ResponseWrapper responseWrapper = new ResponseWrapper(rtRequest, responseMessage, outputStream -> {});
+        responseWrapper.setContentType(getContentType(rtRequest));
+        responseWrapper.setContentLength(0);
         return responseWrapper;
     }
 }

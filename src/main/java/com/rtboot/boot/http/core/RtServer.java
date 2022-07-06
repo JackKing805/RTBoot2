@@ -1,5 +1,6 @@
 package com.rtboot.boot.http.core;
 
+import com.rtboot.boot.http.factory.ControllerFactory;
 import com.rtboot.boot.http.utils.ThreadAgentUtils;
 import com.rtboot.boot.rtboot.core.RtContext;
 import com.rtboot.boot.rtboot.utils.Logger;
@@ -17,6 +18,7 @@ public class RtServer{
     public void launchServer(){
         int listenPort = rtContext.getIntProperties("http.port", 8080);
         int maxRequest = rtContext.getIntProperties("http.request.max", 100);
+        ControllerFactory.prepareController(rtContext);
         new Thread(new CoreServer(rtContext,listenPort,maxRequest)).start();
     }
 

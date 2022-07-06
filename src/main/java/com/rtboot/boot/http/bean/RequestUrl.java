@@ -1,5 +1,7 @@
 package com.rtboot.boot.http.bean;
 
+import com.rtboot.boot.http.factory.ControllerFactory;
+import com.rtboot.boot.http.factory.model.ControllerMapper;
 import com.rtboot.boot.http.utils.StringParser;
 import com.rtboot.boot.rtboot.utils.Logger;
 
@@ -12,6 +14,7 @@ public class RequestUrl {
     private String path;//请求路径
     private Map<String,String> map;//请求参数
 //    private String pathValue;//路径参数
+    private String resourceName;
 
     public RequestUrl(String url) {
         this.url = url;
@@ -24,6 +27,7 @@ public class RequestUrl {
             path = "";
             return;
         }
+
         String[] split = url.split("[?]");
         if (split.length>0){
             path = split[0];
@@ -38,6 +42,17 @@ public class RequestUrl {
                             map.put(result[0],result[1]);
                         }
                     }
+                }
+            }
+        }
+
+
+        if (map.isEmpty()){
+            String[] split1 = url.split("/");
+            if (split1.length>0){
+                String end = split1[split1.length-1];
+                if (end.contains(".")){
+                    resourceName  = end;
                 }
             }
         }
@@ -56,12 +71,17 @@ public class RequestUrl {
         return map;
     }
 
+    public String getResourceName() {
+        return resourceName;
+    }
+
     @Override
     public String toString() {
         return "RequestUrl{" +
                 "url='" + url + '\'' +
                 ", path='" + path + '\'' +
                 ", map=" + map +
+                ", resourceName='" + resourceName + '\'' +
                 '}';
     }
 }

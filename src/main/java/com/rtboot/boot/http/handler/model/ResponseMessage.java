@@ -23,13 +23,4 @@ public class ResponseMessage {
     public Object getContent() {
         return content;
     }
-
-
-    public int getContentLength(){
-        if (content==null){
-            return 0;
-        }else {
-            return content.toString().length();
-        }
-    }
 }

@@ -53,8 +53,11 @@ public class ResponseWrapper {
         addHeader("Content-Type:",contentType);
     }
 
-    public void setContentLength(int contentLength){
+    public void setContentLength(long contentLength){
         addHeader("Content-Length:",contentLength);
     }
 
+    public void setContentLength(int contentLength){
+        addHeader("Content-Length:",contentLength);
+    }
 }

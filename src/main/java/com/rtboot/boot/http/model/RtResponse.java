@@ -39,4 +39,8 @@ public class RtResponse{
             socket.close();
         }
     }
+
+    public boolean isClose(){
+        return isClose;
+    }
 }

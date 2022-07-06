@@ -70,6 +70,9 @@ public class Processor {
     }
 
     private static String[] parseHeader(String content){
+        if (content == null){
+            return null;
+        }
         if (content.isEmpty()){
             return null;
         }
@@ -82,7 +85,15 @@ public class Processor {
 
 
     public static void processResponse(RtRequest rtRequest, RtResponse rtResponse, ResponseWrapper responseWrapper){
-        Logger.i("request:"+ rtRequest.getRequestUrl().getPath()+",start response:"+ rtResponse);
+        if (rtResponse.isClose()){
+            return;
+        }
+
+        Logger.i("request:"+ rtRequest.getRequestUrl().getPath()+",start response:"+ responseWrapper);
+
+        if (responseWrapper==null){
+            return;
+        }
 
         try{
             OutputStream outputStream = rtResponse.getOutPutStream();
@@ -95,11 +106,11 @@ public class Processor {
             }
             String endLine = "\r\n";
             bufferedOutputStream.write(endLine.getBytes());
+            bufferedOutputStream.flush();
             if (responseWrapper.getResponseMessage().getContent()!=null && responseWrapper.getResponseWriteListener()!=null){
                 responseWrapper.getResponseWriteListener().write(outputStream);
             }
-            bufferedOutputStream.flush();
-            bufferedOutputStream.close();
+            outputStream.flush();
             outputStream.close();
         }catch (Exception e){
             e.printStackTrace();
