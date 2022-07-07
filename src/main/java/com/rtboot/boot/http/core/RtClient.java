@@ -4,6 +4,7 @@ import com.rtboot.boot.http.extend.Processor;
 import com.rtboot.boot.http.handler.i.RequestHandler;
 import com.rtboot.boot.http.handler.i.ResponseHandler;
 import com.rtboot.boot.http.handler.impl.request.ControllerRequestHandler;
+import com.rtboot.boot.http.handler.impl.request.ErrorRequestHandler;
 import com.rtboot.boot.http.handler.impl.request.ResourceRequestHandler;
 import com.rtboot.boot.http.handler.impl.request.RootRequestHandler;
 import com.rtboot.boot.http.handler.impl.response.*;
@@ -30,7 +31,7 @@ public class RtClient implements Runnable {
 
     @Override
     public void run() {
-        RtRequest rtRequest = Processor.processRequest(socket);
+        RtRequest rtRequest = Processor.processRequest(socket,rtContext);
         if (rtRequest == null) {
             Logger.e("client bad request");
             return;
@@ -40,8 +41,9 @@ public class RtClient implements Runnable {
         RtResponse rtResponse = new RtResponse(socket);
         RequestResult requestResult = new RequestHandler.Builder()
                 .addHandler(new RootRequestHandler())
-                .addHandler(new ResourceRequestHandler())
                 .addHandler(new ControllerRequestHandler())
+                .addHandler(new ResourceRequestHandler())
+                .addHandler(new ErrorRequestHandler())
                 .build()
                 .handleNext(rtContext, rtRequest, rtResponse);
 

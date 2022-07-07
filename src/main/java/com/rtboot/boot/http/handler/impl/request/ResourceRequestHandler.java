@@ -9,16 +9,15 @@ import com.rtboot.boot.rtboot.core.RtContext;
 import com.rtboot.boot.rtboot.utils.Logger;
 
 import java.net.URL;
-import java.util.Objects;
-import java.util.regex.Pattern;
 
 public class ResourceRequestHandler extends RequestHandler {
     @Override
     protected RequestResult handlerRequest(RtContext rtContext, RtRequest rtRequest, RtResponse rtResponse) {
-        if (rtRequest.getRequestUrl().getResourceName()!=null){
+        if (rtRequest.getRequestUrl().getUrl().getFile()!=null && rtRequest.getRequestUrl().getUrl().getFile().contains(".")){
             Logger.i("ResourceRequestHandler handlerRequest:"+rtRequest.getRequestUrl().getUrl());
-            String resourceName = rtRequest.getRequestUrl().getResourceName();
-            if (resourceName.equals("favicon.ico")){
+            String file = rtRequest.getRequestUrl().getUrl().getFile();
+            String resourceName = file;
+            if (resourceName.equals("/favicon.ico")){
                 resourceName = rtContext.getStringProperties("http.resources.favicon", "favicon.ico");
             }else {
                 String host = rtRequest.getRequestHeader().getHost().trim();
@@ -29,12 +28,10 @@ public class ResourceRequestHandler extends RequestHandler {
                 for (int i = 0; i < split.length-1; i++) {
                     result.append("/").append(split[i]);
                 }
-                resourceName = rtRequest.getRequestUrl().getUrl().replace(result,"");
+                resourceName = file.substring(file.indexOf(result.toString())+result.length());
             }
 
-
             Logger.i("ResourceRequestHandler resourceName:"+resourceName);
-
 
             String prefix = rtContext.getStringProperties("http.resources.prefix", "static");
             URL resources = rtContext.getResources(prefix+ "/"+resourceName);

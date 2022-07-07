@@ -1,4 +1,4 @@
-package com.rtboot.boot.rtboot.annotation;
+package com.rtboot.boot.http.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

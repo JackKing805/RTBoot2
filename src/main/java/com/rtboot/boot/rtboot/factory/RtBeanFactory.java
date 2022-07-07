@@ -2,7 +2,6 @@ package com.rtboot.boot.rtboot.factory;
 
 import com.rtboot.boot.rtboot.annotation.Bean;
 import com.rtboot.boot.rtboot.annotation.BeanQuery;
-import com.rtboot.boot.rtboot.annotation.Controller;
 import com.rtboot.boot.rtboot.annotation.Resource;
 import com.rtboot.boot.rtboot.bean.MethodWrapper;
 import com.rtboot.boot.rtboot.i.ObjectFindListener;
@@ -16,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 
 public class RtBeanFactory {
     /**

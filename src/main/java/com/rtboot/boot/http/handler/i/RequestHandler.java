@@ -17,13 +17,13 @@ public abstract class RequestHandler {
         try {
             requestResult = handlerRequest(rtContext, rtRequest,rtResponse);
         } catch (Exception e) {
-            return RequestResult.failure(new ResponseMessage(505,"server content error",null));
+            return RequestResult.failure(ResponseMessage._505());
         }
         if (RequestResult.isNext(requestResult)){
             if (next!=null){
                 return next.handleNext(rtContext, rtRequest,rtResponse);
             }else {
-                return RequestResult.failure(new ResponseMessage(400,"bad request",null));
+                return RequestResult.failure(ResponseMessage._400());
             }
         }else {
             return requestResult;

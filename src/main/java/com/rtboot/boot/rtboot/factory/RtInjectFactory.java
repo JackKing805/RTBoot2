@@ -1,6 +1,5 @@
 package com.rtboot.boot.rtboot.factory;
 
-import com.rtboot.boot.rtboot.annotation.Controller;
 import com.rtboot.boot.rtboot.annotation.Resource;
 import com.rtboot.boot.rtboot.annotation.Value;
 import com.rtboot.boot.rtboot.bean.FieldWrapper;

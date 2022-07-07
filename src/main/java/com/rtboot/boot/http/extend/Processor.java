@@ -5,11 +5,11 @@ import com.rtboot.boot.http.bean.RequestHeader;
 import com.rtboot.boot.http.bean.RequestUrl;
 import com.rtboot.boot.http.enums.RequestProtocol;
 import com.rtboot.boot.http.enums.RequestVersion;
-import com.rtboot.boot.http.handler.model.ResponseMessage;
 import com.rtboot.boot.http.handler.model.ResponseWrapper;
 import com.rtboot.boot.http.model.RtRequest;
 import com.rtboot.boot.http.model.RtResponse;
 import com.rtboot.boot.http.utils.StringParser;
+import com.rtboot.boot.rtboot.core.RtContext;
 import com.rtboot.boot.rtboot.utils.Logger;
 
 import java.io.*;
@@ -20,7 +20,7 @@ import java.util.Map;
 public class Processor {
     private static final Gson gson = new Gson();
 
-    public static RtRequest processRequest(Socket socket){
+    public static RtRequest processRequest(Socket socket, RtContext rtContext){
         try {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             boolean isProtocolLine = true;
@@ -43,7 +43,8 @@ public class Processor {
                             requestProtocol = StringParser.parserRequestProtocol(content);
                         }else  if(i==1){
                             //link
-                            requestUrl = new RequestUrl(content);
+                            int port = rtContext.getIntProperties("http.port",8080);
+                            requestUrl = new RequestUrl("http","127.0.0.1",port,content);
                         }else if(i==2){
                             //version
                             requestVersion = StringParser.parserRequestVersion(content);
@@ -53,7 +54,7 @@ public class Processor {
                 }else if (line.contains(":")){
                     String[] strings = parseHeader(line);
                     if (strings!=null){
-                        headers.put(strings[0],strings[1]);
+                        headers.put(strings[0],strings[1].trim());
                     }
                 }else if (line.isEmpty()){
                     break;
@@ -89,7 +90,7 @@ public class Processor {
             return;
         }
 
-        Logger.i("request:"+ rtRequest.getRequestUrl().getPath()+",start response:"+ responseWrapper);
+        Logger.i("request:"+ rtRequest.getRequestUrl().getUrl().getPath()+",start response:"+ responseWrapper);
 
         if (responseWrapper==null){
             return;

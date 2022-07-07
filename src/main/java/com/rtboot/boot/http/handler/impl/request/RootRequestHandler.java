@@ -10,7 +10,7 @@ import com.rtboot.boot.rtboot.utils.Logger;
 public class RootRequestHandler extends RequestHandler {
     @Override
     protected RequestResult handlerRequest(RtContext rtContext, RtRequest rtRequest, RtResponse rtResponse) {
-        if (rtRequest.getRequestUrl().getPath().equals("/")){
+        if (rtRequest.getRequestUrl().getUrl().getPath().equals("/")){
             Logger.i("rootPath request:"+ rtRequest);
             return RequestResult.success(null);
         }

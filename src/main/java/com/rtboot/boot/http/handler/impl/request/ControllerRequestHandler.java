@@ -17,11 +17,11 @@ import java.lang.reflect.InvocationTargetException;
 public class ControllerRequestHandler extends RequestHandler {
     @Override
     protected RequestResult handlerRequest(RtContext rtContext, RtRequest rtRequest, RtResponse rtResponse) throws InstantiationException, IllegalAccessException, InvocationTargetException {
-        Logger.i("controller request:"+ rtRequest);
-        ControllerMapper controllerMapper = ControllerFactory.matchMethod(rtRequest.getRequestUrl().getUrl());
+        ControllerMapper controllerMapper = ControllerFactory.matchMethod(rtRequest.getRequestUrl().getUrl().getPath());
         if (controllerMapper==null){
-            throw new NullPointerException("no match controller class");
+            return RequestResult.next();
         }
+        Logger.i("controller request:"+ rtRequest);
 
         Object controller = controllerMapper.getController().newInstance();
 

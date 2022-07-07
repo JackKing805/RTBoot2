@@ -32,7 +32,6 @@ public class URLResponseHandler extends ResponseHandler {
             while ((len = fileInputStream.read(bytes)) !=-1){
                 outputStream.write(bytes,0,len);
             }
-            Logger.i("length:"+len);
         });
         responseWrapper.setContentType(getContentType(rtRequest));
         responseWrapper.setContentLength(file.length());

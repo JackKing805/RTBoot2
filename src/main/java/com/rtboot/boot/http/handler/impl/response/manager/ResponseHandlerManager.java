@@ -13,6 +13,10 @@ public class ResponseHandlerManager {
         if (responseMessage.getContent()==null){
             return new NullContentResponseHandler();
         }
+        if (responseMessage.getCode() >=400){
+            return new ErrorResponseHandler();
+        }
+
         Class<?> responseType = responseMessage.getContent().getClass();
         Logger.i("handlerResponse responseType:"+responseType);
         if (responseType==String.class){
